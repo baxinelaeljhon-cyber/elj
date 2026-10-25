@@ -41,3 +41,21 @@ conn = get_db_connection()
 students = conn.execute(&#39;SELECT * FROM students&#39;).fetchall()
 conn.close()
 return jsonify([dict(student) for student in students])
+
+@app.route(&#39;/students&#39;)
+def get_students():
+conn = get_db_connection()
+students = conn.execute(&#39;SELECT * FROM students&#39;).fetchall()
+conn.close()
+return jsonify([dict(student) for student in students])
+
+@app.route(&#39;/students/&lt;int:id&gt;&#39;)
+def get_student_by_id(id):
+conn = get_db_connection()
+student = conn.execute(
+&#39;SELECT * FROM students WHERE id = ?&#39;, (id,)
+).fetchone()
+conn.close()
+if student is None:
+return jsonify({&quot;error&quot;: &quot;Student not found&quot;}), 404
+return jsonify(dict(student))
