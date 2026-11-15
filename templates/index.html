@@ -44,7 +44,7 @@
             box-sizing: border-box;
         }
 
-        #result, #greeting {
+        #result, #greeting, #studentList {
             margin-top: 20px;
             padding: 15px;
             background-color: white;
@@ -57,12 +57,23 @@
             border: 0;
             border-top: 1px solid #ccc;
         }
+
+        .student-card {
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
     </style>
 </head>
 
 <body>
 
     <h1>Student API Interface</h1>
+
+    <!-- Student Information -->
+    <h2>Student Information</h2>
 
     <button onclick="loadStudent()">
         Load Student Information
@@ -74,6 +85,7 @@
 
     <hr>
 
+    <!-- Greeting API -->
     <h2>Greeting API</h2>
 
     <input
@@ -86,13 +98,28 @@
 
     <p id="greeting" aria-live="polite"></p>
 
+    <hr>
+
+    <!-- Students from Database -->
+    <h2>Students from Database</h2>
+
+    <button onclick="loadStudents()">Load Students</button>
+
+    <div id="studentList" aria-live="polite">
+        Student records will appear here.
+    </div>
+
     <script>
+
+        // Load individual student
         async function loadStudent() {
+
             const result = document.getElementById("result");
 
             result.textContent = "Loading student information...";
 
             try {
+
                 const response = await fetch("/student");
 
                 if (!response.ok) {
@@ -112,29 +139,37 @@
                 ];
 
                 fields.forEach(([label, value]) => {
+
                     const p = document.createElement("p");
                     const b = document.createElement("b");
 
                     b.textContent = label + ": ";
+
                     p.appendChild(b);
                     p.appendChild(
                         document.createTextNode(String(value))
                     );
 
                     result.appendChild(p);
+
                 });
 
             } catch (error) {
+
                 result.textContent = "Unable to retrieve data.";
-                console.error("Student API error:", error);
+
+                console.error(error);
+
             }
         }
 
+
+        // Greeting API
         async function sayHello() {
+
             const name = document
                 .getElementById("nameInput")
-                .value
-                .trim();
+                .value.trim();
 
             const greeting = document.getElementById("greeting");
 
@@ -146,6 +181,7 @@
             greeting.textContent = "Loading greeting...";
 
             try {
+
                 const response = await fetch(
                     "/hello?name=" + encodeURIComponent(name)
                 );
@@ -159,28 +195,83 @@
                 greeting.textContent = data.message;
 
             } catch (error) {
+
                 greeting.textContent = "Unable to retrieve greeting.";
-                console.error("Greeting API error:", error);
+
+                console.error(error);
+
             }
         }
+
+
+        // Load all students from SQLite database
+        async function loadStudents() {
+
+            const studentList = document.getElementById("studentList");
+
+            studentList.textContent = "Loading student records...";
+
+            try {
+
+                const response = await fetch("/students");
+
+                if (!response.ok) {
+                    throw new Error("Failed to retrieve students");
+                }
+
+                const data = await response.json();
+
+                studentList.replaceChildren();
+
+                if (data.length === 0) {
+                    studentList.textContent = "No student records found.";
+                    return;
+                }
+
+                data.forEach(student => {
+
+                    const card = document.createElement("div");
+                    card.className = "student-card";
+
+                    const fields = [
+                        ["Student ID", student.student_id],
+                        ["Name", student.name],
+                        ["Program", student.program],
+                        ["Year", student.year],
+                        ["Section", student.section]
+                    ];
+
+                    fields.forEach(([label, value]) => {
+
+                        const p = document.createElement("p");
+                        const b = document.createElement("b");
+
+                        b.textContent = label + ": ";
+
+                        p.appendChild(b);
+                        p.appendChild(
+                            document.createTextNode(String(value))
+                        );
+
+                        card.appendChild(p);
+
+                    });
+
+                    studentList.appendChild(card);
+
+                });
+
+            } catch (error) {
+
+                studentList.textContent =
+                    "Unable to retrieve student records.";
+
+                console.error(error);
+
+            }
+        }
+
     </script>
 
 </body>
 </html>
-
-<hr>
-
-<h2>Students from Database</h2>
-
-<button onclick="loadStudents()">Load Students</button>
-
-<div id="studentList"></div>
-
-
-<hr>
-
-<h2>Students from Database</h2>
-
-<button onclick="loadStudents()">Load Students</button>
-
-<div id="studentList"></div>

@@ -1,17 +1,12 @@
+
+import sqlite3
 import sqlite3
 
-# Connect to the database (creates students.db if it doesn't exist)
+# Connect to database
 conn = sqlite3.connect('students.db')
 cursor = conn.cursor()
-import sqlite3
-from flask import Flask, jsonify, request, render_template
-app = Flask(__name__)
-def get_db_connection():
-conn = sqlite3.connect(&#39;students.db&#39;)
-conn.row_factory = sqlite3.Row
-return conn
 
-# Create the students table
+# Create students table
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,24 +18,25 @@ CREATE TABLE IF NOT EXISTS students (
 )
 ''')
 
-# Clear existing records
+# Delete previous records
 cursor.execute("DELETE FROM students")
 
-# Sample student records
+# Student records
 students = [
-    ('24-00329', 'Eljhon Baxinela', 'BSIT', 3, 'A'),
-    ('24-00328', 'Jaya Mekaela Almodiel', 'BSIT', 3, 'A'),
-    ('24-00357', 'Mariel Alada', 'BSIT', 3, 'A')
+    ('2024-00111', 'Jm Abordaje', 'BSIT', 3, 'A'),
+    ('2024-00286', 'Necole Andrea Aloro', 'BSIT', 3, 'A'),
+    ('2024-00179', 'John Michel Bautista', 'BSIT', 3, 'A')
 ]
 
-# Insert the student records
+# Insert records
 cursor.executemany('''
 INSERT INTO students (student_id, name, program, year, section)
 VALUES (?, ?, ?, ?, ?)
 ''', students)
 
-# Save and close the database
+# Save and close
 conn.commit()
 conn.close()
 
-print("Database created successfully.")
+print("Database created successfully!")
+print("3 student records inserted successfully!")
